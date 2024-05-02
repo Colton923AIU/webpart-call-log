@@ -1,0 +1,11 @@
+.controls {
+  display: grid;
+  gap: 0.1rem;
+  grid-template-columns: 3fr 1fr 1fr;
+  place-content: center;
+  width: 100%;
+}
+
+.id {
+  text-align: center;
+}

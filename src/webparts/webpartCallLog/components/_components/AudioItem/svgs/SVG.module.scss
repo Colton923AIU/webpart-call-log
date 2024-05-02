@@ -1,0 +1,44 @@
+.svgStyles {
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: 50%;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.5), transparent);
+  background-size: 100%;
+  background-repeat: no-repeat;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    animation: fadeOut 0.2s ease-in forwards;
+    transition: all 0.2s ease;
+    background-image: radial-gradient(rgba(255, 255, 255, 1), transparent);
+    box-shadow: -1px -1px 1px rgba(0, 0, 0, 0.3);
+    transform: translate(1px, 1px);
+  }
+
+  &:active {
+    animation: fastClick 0.1s ease-in forwards;
+  }
+}
+
+@keyframes fastClick {
+  0% {
+    transform: scale(1) translate(1px, 1px);
+  }
+  50% {
+    transform: scale(0.99) translate(1px, 1px);
+  }
+  100% {
+    transform: scale(1) translate(1px, 1px);
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    backdrop-filter: blur(0px);
+  }
+  100% {
+    opacity: 0.8;
+    backdrop-filter: blur(30px);
+  }
+}

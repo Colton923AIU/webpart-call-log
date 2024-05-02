@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "webpart-call-log-client-side-solution",
+    "id": "5d66eb56-64f1-4a40-a24b-33d866ebf8af",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "Colton McClintock",
+      "websiteUrl": "coltonmcclintock.com",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.19.0"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "webpart-call-log description"
+      },
+      "longDescription": {
+        "default": "webpart-call-log description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "webpart-call-log Feature",
+        "description": "The feature that activates elements of the webpart-call-log solution.",
+        "id": "3d967d33-bc5e-439c-9d20-8ff92a7d7679",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/webpart-call-log.sppkg"
+  }
+}
