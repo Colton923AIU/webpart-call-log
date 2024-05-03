@@ -4,83 +4,51 @@ import styles from "./WebpartCallLog.module.scss";
 import AudioItem from "./_components/AudioItem";
 import useSharePointListData from "../utils/hooks/";
 
-export type TAudioItem = {
-  id: string;
-  audioFile: Blob;
-};
-
 const WebpartCallLog: React.FC<IWebpartCallLogProps> = (
   props: IWebpartCallLogProps
 ) => {
   const { absoluteUrl, spHttpClient, spListLink } = { ...props };
-  const [data] = useSharePointListData({
+  const [data, loading, error] = useSharePointListData({
     client: spHttpClient,
     absoluteUrl: absoluteUrl,
     spListLink: spListLink,
   });
+
+  console.log("loading: ", loading);
+  console.log("error: ", error);
   console.log("data: ", data);
-
-  const TestItems: TAudioItem[] = [
-    {
-      id: "a34a",
-      audioFile: new Blob(),
-    },
-    {
-      id: "b34b",
-      audioFile: new Blob(),
-    },
-    {
-      id: "a34a",
-      audioFile: new Blob(),
-    },
-    {
-      id: "b34b",
-      audioFile: new Blob(),
-    },
-    {
-      id: "a34a",
-      audioFile: new Blob(),
-    },
-    {
-      id: "b34b",
-      audioFile: new Blob(),
-    },
-    {
-      id: "a34a",
-      audioFile: new Blob(),
-    },
-    {
-      id: "b34b",
-      audioFile: new Blob(),
-    },
-    {
-      id: "a34a",
-      audioFile: new Blob(),
-    },
-    {
-      id: "b34b",
-      audioFile: new Blob(),
-    },
-  ];
-
-  return (
-    <section className={styles.wrapper}>
-      <div className={styles.header}>
-        <span>audio log</span>
-      </div>
-      <div className={`${styles.items} ${styles.scroll_y}`}>
-        {TestItems.map((audioItem, index) => {
-          return (
-            <AudioItem
-              key={index}
-              audioFile={audioItem.audioFile}
-              id={audioItem.id}
-            />
-          );
-        })}
-      </div>
-    </section>
-  );
+  if (!loading && !error) {
+    return (
+      <section className={styles.wrapper}>
+        <div className={styles.header}>
+          <span>audio log</span>
+        </div>
+        <div className={`${styles.items} ${styles.scroll_y}`}>
+          {data.map((item) => {
+            return (
+              <AudioItem
+                key={item.ID.toString()}
+                id={item.ID.toString()}
+                Attachments={item.Attachments as boolean}
+                absoluteUrl={absoluteUrl}
+                client={spHttpClient}
+                spListLink={spListLink}
+              />
+            );
+          })}
+        </div>
+      </section>
+    );
+  } else {
+    return (
+      <>
+        loading:
+        {loading}
+        error:
+        {error}
+      </>
+    );
+  }
 };
 
 export default WebpartCallLog;

@@ -5,16 +5,17 @@ import styles from "./SVG.module.scss";
 const Pause: ({ onClick, styleProps }: ISVGProps) => JSX.Element = ({
   onClick,
   styleProps,
+  disabled,
 }: ISVGProps) => {
   const w: () => string | number = () => {
-    let w: string | number = "50px";
+    let w: string | number = "50";
     if (styleProps?.width) {
       w = styleProps.width;
     }
     return w;
   };
   const h: () => string | number = () => {
-    let h: string | number = "50px";
+    let h: string | number = "50";
     if (styleProps?.height) {
       h = styleProps.height;
     }
@@ -31,11 +32,20 @@ const Pause: ({ onClick, styleProps }: ISVGProps) => JSX.Element = ({
       onClick={
         onClick
           ? () => {
-              onClick();
+              if (!disabled) {
+                onClick();
+              }
             }
-          : () => null
+          : undefined
       }
-      className={styles.svgStyles}
+      className={disabled ? undefined : styles.svgStyles}
+      style={
+        disabled
+          ? {
+              opacity: ".5",
+            }
+          : undefined
+      }
     >
       <g
         transform="translate(0,50) scale(0.1,-0.1)"

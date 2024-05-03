@@ -2,7 +2,7 @@ import { SPHttpClient, type SPHttpClientResponse } from "@microsoft/sp-http";
 import * as React from "react";
 import urlGetByTitle from "../../urlGetByTitle";
 
-export type TSPListData = Record<string, string>;
+export type TSPListData = Record<string, string | boolean>[];
 export interface ISPListData {
   client: SPHttpClient; // SP Client for making fetch reqs
   spListLink: string;
@@ -18,12 +18,14 @@ const useSharePointListData: ({
   client,
   spListLink,
   absoluteUrl,
-}: ISPListData) => [TSPListData | undefined] = ({
+}: ISPListData) => [TSPListData, boolean, string] = ({
   spListLink,
   absoluteUrl,
   client,
 }: ISPListData) => {
-  const [listData, setListData] = React.useState<TSPListData | null>(null);
+  const [listData, setListData] = React.useState<TSPListData>([]);
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<string>("");
 
   const getSPListData: (url: string) => Promise<void> = async (url: string) => {
     if (!url) return;
@@ -39,7 +41,7 @@ const useSharePointListData: ({
         return;
       }
     } catch {
-      console.log("Response from SP List Getter Failed");
+      setError("Response from SP List Getter Failed");
       return;
     }
   };
@@ -47,11 +49,14 @@ const useSharePointListData: ({
   React.useEffect(() => {
     const attempt: (attemptString: string) => void = async (attemptString) => {
       try {
+        setLoading(true);
         await getSPListData(attemptString).then(() => {
+          setLoading(false);
           return;
         });
       } catch {
-        console.log("Error attempting to get sp list data");
+        setLoading(false);
+        setError("Error attempting to get sp list data");
       }
     };
     if (absoluteUrl && spListLink) {
@@ -65,10 +70,7 @@ const useSharePointListData: ({
     }
   }, [spListLink, absoluteUrl]);
 
-  if (listData) return [listData];
-  else {
-    return [undefined];
-  }
+  return [listData, loading, error];
 };
 
 export default useSharePointListData;
