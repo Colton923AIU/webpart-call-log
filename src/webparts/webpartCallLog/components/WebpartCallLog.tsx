@@ -3,33 +3,30 @@ import type { IWebpartCallLogProps } from "./IWebpartCallLogProps";
 import styles from "./WebpartCallLog.module.scss";
 import AudioItem from "./_components/AudioItem";
 import useSharePointListData from "../utils/hooks/";
+import { NICESPList } from "./types";
 
 const WebpartCallLog: React.FC<IWebpartCallLogProps> = (
   props: IWebpartCallLogProps
 ) => {
-  const { absoluteUrl, spHttpClient, spListLink } = { ...props };
+  const { absoluteUrl, spHttpClient, spListLink, description } = { ...props };
   const [data, loading, error] = useSharePointListData({
     client: spHttpClient,
     absoluteUrl: absoluteUrl,
     spListLink: spListLink,
   });
 
-  console.log("loading: ", loading);
-  console.log("error: ", error);
-  console.log("data: ", data);
+  console.log("SP List Data: ", data);
   if (!loading && !error) {
     return (
       <section className={styles.wrapper}>
         <div className={styles.header}>
-          <span>audio log</span>
+          <span>{description}</span>
         </div>
         <div className={`${styles.items} ${styles.scroll_y}`}>
-          {data.map((item) => {
+          {data.map((item: NICESPList) => {
             return (
               <AudioItem
-                key={item.ID.toString()}
-                id={item.ID.toString()}
-                Attachments={item.Attachments as boolean}
+                item={item}
                 absoluteUrl={absoluteUrl}
                 client={spHttpClient}
                 spListLink={spListLink}
@@ -39,16 +36,7 @@ const WebpartCallLog: React.FC<IWebpartCallLogProps> = (
         </div>
       </section>
     );
-  } else {
-    return (
-      <>
-        loading:
-        {loading}
-        error:
-        {error}
-      </>
-    );
-  }
+  } else return null;
 };
 
 export default WebpartCallLog;

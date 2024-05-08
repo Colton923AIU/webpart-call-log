@@ -1,0 +1,38 @@
+.circle {
+  border-radius: 50%;
+  background-image: linear-gradient(to right, #fff, #000000b2);
+  background-position: 0 0;
+  animation: MoveBG 2s ease infinite;
+}
+
+.square {
+  border-radius: 8px;
+  background-image: linear-gradient(to right, #fff, #000000b2);
+  background-position: 0 0;
+  animation: MoveBG 2s ease infinite;
+}
+
+.card {
+  padding: 3px;
+  border-radius: 8px;
+  min-width: 180px;
+  min-height: 240px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  box-shadow: 1px 1px 0px 3px #000000b2;
+}
+
+.card > * {
+  margin: 0.8rem 0.5rem;
+  box-shadow: 1px 1px 0px 3px #000000b2;
+}
+
+@keyframes MoveBG {
+  0% {
+    background-position: -50% 0;
+  }
+  100% {
+    background-position: 150% 0;
+  }
+}

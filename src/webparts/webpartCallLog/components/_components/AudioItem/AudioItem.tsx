@@ -5,27 +5,25 @@ import Play from "./svgs/Play";
 import styles from "./AudioItem.module.scss";
 import loadAudio from "./loadAudio/loadAudio";
 import { SPHttpClient } from "@microsoft/sp-http";
+import { NICESPList } from "../../types";
 
 export type TAudioItem = {
-  id: string;
   absoluteUrl: string;
   client: SPHttpClient;
   spListLink: string;
-  Attachments: boolean;
+  item: NICESPList;
 };
 
 const AudioItem: ({
-  id,
   absoluteUrl,
   spListLink,
-  Attachments,
   client,
+  item,
 }: TAudioItem) => JSX.Element = ({
-  id,
   absoluteUrl,
   spListLink,
-  Attachments,
   client,
+  item,
 }: TAudioItem) => {
   const [playing, setPlaying] = React.useState<boolean>(false);
   const [timePlayed, setTimePlayed] = React.useState<number>(0);
@@ -44,39 +42,36 @@ const AudioItem: ({
       AudioRef.current.fastSeek(0);
     }
   };
-  const play: () => Promise<void> = async () => {
-    setPlaying(true);
-    setPreviousTimer(new Date().getTime());
 
+  const play: () => Promise<void> = async () => {
     if (AudioRef.current) {
-      // AudioRef.current.fastSeek(timePlayed);     obv need to do with pause functionality
       try {
         await AudioRef.current
           .play()
           .then(() => {
-            console.log("playing, time played: ", timePlayed);
+            setPlaying(true);
+            const newD = new Date().getTime();
+            setPreviousTimer(newD);
           })
           .catch((e) => {
             console.log("error playing audio: ", e);
           });
       } catch (e) {
         console.log(e);
-        console.log("current ref: ", AudioRef);
       }
     }
   };
-  const pause: () => void = () => {
-    const total = new Date().getTime() - previousTimer + timePlayed;
-    setTimePlayed(total);
-    setPlaying(false);
 
+  const pause: () => void = () => {
     if (AudioRef.current) {
       try {
-        console.log("paus         e");
         AudioRef.current.pause();
       } catch (e) {
-        console.log("current ref: ", AudioRef);
         console.log(e);
+      } finally {
+        const total = new Date().getTime() - previousTimer + timePlayed;
+        setTimePlayed(total);
+        setPlaying(false);
       }
     }
   };
@@ -86,8 +81,8 @@ const AudioItem: ({
       if (AudioRef.current) {
         const audioState = await loadAudio(
           {
-            Attachments: Attachments,
-            ID: id,
+            Attachments: item.Attachments ? item.Attachments : false,
+            ID: item.ID ? item.ID.toString() : "0",
             Title: "",
           },
           AudioRef,
@@ -97,39 +92,46 @@ const AudioItem: ({
         );
 
         setAudioFileState(audioState);
-        return true;
+        return audioState;
       } else {
         return false;
       }
     };
     tryAudioFiling()
       .then((val: boolean) => {
-        console.log("did it work?: ", val);
+        if (val) {
+          if (AudioRef.current) {
+            AudioRef.current.currentTime = item.StartCropTime
+              ? item.StartCropTime * 1000
+              : 0;
+          }
+        }
       })
       .catch((e) => {
         console.log("e: ", e);
       });
   }, [AudioRef]);
 
-  console.log("playing: ", playing);
   return (
-    <div className={styles.controls}>
-      <div className={styles.id}>{id}</div>
-      <Skip onClick={restart} disabled={audioFileState ? false : true} />
-      {playing ? (
-        <Pause
-          onClick={() => pause()}
-          active={!playing}
-          disabled={audioFileState ? false : true}
-        />
-      ) : (
-        <Play
-          onClick={() => play()}
-          active={playing}
-          disabled={audioFileState ? false : true}
-        />
-      )}
-      <audio id="audioRef" ref={AudioRef} style={{ display: "none" }} />
+    <div className={styles.container}>
+      <div className={styles.controls}>
+        <p>{item.Title}</p>
+        <Skip onClick={restart} disabled={audioFileState ? false : true} />
+        {playing ? (
+          <Pause
+            onClick={() => pause()}
+            active={!playing}
+            disabled={audioFileState ? false : true}
+          />
+        ) : (
+          <Play
+            onClick={() => play()}
+            active={playing}
+            disabled={audioFileState ? false : true}
+          />
+        )}
+        <audio id="audioRef" ref={AudioRef} style={{ display: "none" }} />
+      </div>
     </div>
   );
 };
