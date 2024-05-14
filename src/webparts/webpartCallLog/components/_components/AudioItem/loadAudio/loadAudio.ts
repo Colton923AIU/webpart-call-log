@@ -2,18 +2,14 @@ import { SPHttpClient } from "@microsoft/sp-http";
 import * as React from "react";
 import urlGetByTitle from "../../../../utils/urlGetByTitle";
 
-type SPListDefaultKeys = "Title" | "Attachments" | "ID";
+type SPListDefaultKeys = "Attachments" | "ID";
 type TSPListWithAudio = Record<SPListDefaultKeys, string | boolean>;
 
-const attachAudio: (
+const attachAudio = async (
   testUrl: string,
   ref: React.RefObject<HTMLAudioElement>,
   client: SPHttpClient
-) => Promise<boolean> = async (
-  testUrl: string,
-  ref: React.RefObject<HTMLAudioElement>,
-  client: SPHttpClient
-) => {
+): Promise<boolean> => {
   try {
     const fileResponse = await client.get(
       testUrl,
@@ -30,54 +26,38 @@ const attachAudio: (
         ref.current.preload = "auto";
         ref.current.load();
       }
+      console.log("Audio file successfully attached:", fileUrl);
+      return true;
+    } else {
+      console.log("No audio file found at:", testUrl);
+      return false;
     }
-    console.log("Success getting audio:");
-    return true;
   } catch (error) {
-    console.log("Failed getting audio:", error);
+    console.error("Error fetching audio file:", error);
     return false;
   }
 };
 
-const loadAudio: (
+const loadAudio = async (
   listWithAudioAttachments: TSPListWithAudio,
   ref: React.RefObject<HTMLAudioElement>,
   absoluteUrl: string,
   spListLink: string,
   client: SPHttpClient
-) => Promise<boolean> = async (
-  listWithAudioAttachments: TSPListWithAudio,
-  ref: React.RefObject<HTMLAudioElement>,
-  absoluteUrl: string,
-  spListLink: string,
-  client: SPHttpClient
-) => {
-  let success = true;
-  try {
-    if (listWithAudioAttachments.Attachments === true) {
-      const url = urlGetByTitle({
-        absoluteUrl: absoluteUrl,
-        spListLink: spListLink,
-      });
-      if (url) {
-        const thisItem =
-          url + `/items(${listWithAudioAttachments.ID})/AttachmentFiles/`;
-
-        try {
-          await attachAudio(thisItem, ref, client);
-        } catch (error) {
-          console.log("Failed:", error);
-          success = false;
-        }
-      } else {
-        success = false;
-      }
-    }
-    return success;
-  } catch {
-    success = false;
-    return success;
+): Promise<boolean> => {
+  if (!listWithAudioAttachments.Attachments) {
+    console.log("No attachments found for item:", listWithAudioAttachments.ID);
+    return false;
   }
+
+  const url = urlGetByTitle({ absoluteUrl, spListLink });
+  if (!url) {
+    console.error("Failed to construct URL for SharePoint list");
+    return false;
+  }
+
+  const thisItem = `${url}/items(${listWithAudioAttachments.ID})/AttachmentFiles/`;
+  return attachAudio(thisItem, ref, client);
 };
 
 export default loadAudio;

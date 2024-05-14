@@ -1,0 +1,86 @@
+.audioItemContainer {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+}
+
+.audioItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.5rem 0;
+}
+
+.audioItemIndex {
+  width: 2rem;
+  text-align: center;
+}
+
+.audioItemControls {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 0.5rem;
+}
+
+.controlButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.controlButton:disabled {
+  cursor: not-allowed;
+}
+
+.sliderContainer {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 0.5rem;
+}
+
+.slider {
+  flex: 1;
+  appearance: none;
+  height: 4px;
+  background: #cbd5e0;
+  outline: none;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background: #2d3748;
+    cursor: pointer;
+    border-radius: 50%;
+  }
+
+  &::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: #2d3748;
+    cursor: pointer;
+    border-radius: 50%;
+  }
+}
+
+.volumeIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.durationRoot {
+  width: 2rem;
+  text-align: center;
+}

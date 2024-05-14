@@ -1,9 +1,9 @@
 import * as React from "react";
 import type { IWebpartCallLogProps } from "./IWebpartCallLogProps";
-import styles from "./WebpartCallLog.module.scss";
-import AudioItem from "./_components/AudioItem";
 import useSharePointListData from "../utils/hooks/";
 import { NICESPList } from "./types";
+import CallLogComponent from "./_components/CallLogComponent";
+import NewAudioItem from "./_components/NewAudioItem";
 
 const WebpartCallLog: React.FC<IWebpartCallLogProps> = (
   props: IWebpartCallLogProps
@@ -15,17 +15,13 @@ const WebpartCallLog: React.FC<IWebpartCallLogProps> = (
     spListLink: spListLink,
   });
 
-  console.log("SP List Data: ", data);
   if (!loading && !error) {
     return (
-      <section className={styles.wrapper}>
-        <div className={styles.header}>
-          <span>{description}</span>
-        </div>
-        <div className={`${styles.items} ${styles.scroll_y}`}>
+      <section>
+        <CallLogComponent description={description}>
           {data.map((item: NICESPList) => {
             return (
-              <AudioItem
+              <NewAudioItem
                 item={item}
                 absoluteUrl={absoluteUrl}
                 client={spHttpClient}
@@ -33,7 +29,7 @@ const WebpartCallLog: React.FC<IWebpartCallLogProps> = (
               />
             );
           })}
-        </div>
+        </CallLogComponent>
       </section>
     );
   } else return null;
