@@ -1,16 +1,11 @@
 import styles from "./NAudio.module.scss";
-
 import type { SPHttpClient } from "@microsoft/sp-http";
 import type { NICESPList } from "../../types";
-
 import * as React from "react";
-import { useState, useRef } from "react";
-
-import useAudioFile from "../../../hooks/useAudioFile";
-
+import { useState } from "react";
+import useAudioFile from "../../../utils/hooks/useAudioFile";
 import Pause from "../AudioItem/svgs/Pause";
 import Skip from "../AudioItem/svgs/Skip";
-
 import PlayIcon from "../PlayIcon";
 import Volume2Icon from "../Volume2Icon";
 import Duration from "./Duration";
@@ -30,11 +25,9 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
     new Date().getTime()
   );
   const [sliderValue, setSliderValue] = useState<number>(0);
-  const AudioRef = useRef<HTMLAudioElement | null>(null);
-  const [audioFileState, duration, error] = useAudioFile({
+  const { AudioRef, audioFileState, duration, error } = useAudioFile({
     absoluteUrl: absoluteUrl,
     Attachments: item.Attachments,
-    AudioRef: AudioRef,
     client: client,
     ID: item.ID,
     spListLink: spListLink,
@@ -52,10 +45,10 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
     }
   };
 
-  const play = async () => {
+  const play = () => {
     if (AudioRef.current) {
       try {
-        await AudioRef.current
+        AudioRef.current
           .play()
           .then(() => {
             setPlaying(true);
@@ -104,7 +97,6 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
     }
   };
 
-  if (!audioFileState) return null;
   return (
     <div className={styles.audioItemContainer}>
       <div className={styles.audioItem}>

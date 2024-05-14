@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { IWebpartCallLogProps } from "./IWebpartCallLogProps";
-import useSharePointListData from "../utils/hooks/";
+import useSharePointListData from "../utils/hooks/useSharePointListData";
 import { NICESPList } from "./types";
 import CallLogComponent from "./_components/CallLogComponent";
 import NewAudioItem from "./_components/NewAudioItem";

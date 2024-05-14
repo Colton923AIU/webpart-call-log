@@ -30,7 +30,8 @@ export default class WebpartCallLogWebPart extends BaseClientSideWebPart<IWebpar
         environmentMessage: this._environmentMessage,
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
         userDisplayName: this.context.pageContext.user.displayName,
-        spListLink: this.properties.spListLink,
+        // spListLink: this.properties.spListLink,
+        spListLink: `https://livecareered.sharepoint.com/sites/AIU/admissions/training/Lists/NICE%20Calls%20Library/AllItems.aspx?env=WebViewList`,
         absoluteUrl: this.context.pageContext.web.absoluteUrl,
         spHttpClient: this.context.spHttpClient,
       });
