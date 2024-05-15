@@ -1,6 +1,7 @@
 import { SPHttpClient, type SPHttpClientResponse } from "@microsoft/sp-http";
 import * as React from "react";
 import urlGetByTitle from "../../urlGetByTitle";
+import { NICESPList } from "../../../components/types";
 
 export type TSPListData = Record<string, string | boolean>[];
 export interface ISPListData {
@@ -18,14 +19,27 @@ const useSharePointListData: ({
   client,
   spListLink,
   absoluteUrl,
-}: ISPListData) => [TSPListData, boolean, string] = ({
-  spListLink,
-  absoluteUrl,
-  client,
-}: ISPListData) => {
+}: ISPListData) => [
+  TSPListData,
+  boolean,
+  string,
+  (selectedTags: string[]) => void
+] = ({ spListLink, absoluteUrl, client }: ISPListData) => {
   const [listData, setListData] = React.useState<TSPListData>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string>("");
+  const [filteredData, setFilteredData] = React.useState<TSPListData>([]);
+
+  const handleFilterChange = (selectedTags: string[]) => {
+    if (selectedTags.length === 0) {
+      setFilteredData(listData);
+    } else {
+      const filtered = listData.filter((item: NICESPList) =>
+        selectedTags.every((tag) => item.Tags?.indexOf(tag) !== -1)
+      );
+      setFilteredData(filtered);
+    }
+  };
 
   const getSPListData: (url: string) => Promise<void> = async (url: string) => {
     if (!url) return;
@@ -37,7 +51,16 @@ const useSharePointListData: ({
           return response.json();
         });
       if (data) {
-        setListData(data.value);
+        const pre = data.value;
+        console.log("pre: ", pre);
+        const vals: any[] = [];
+        pre.map((item: NICESPList) => {
+          if (item.Approved === true) {
+            vals.push(item);
+          }
+        });
+        setListData(vals);
+        setFilteredData(vals);
         return;
       }
     } catch {
@@ -70,7 +93,7 @@ const useSharePointListData: ({
     }
   }, [spListLink, absoluteUrl]);
 
-  return [listData, loading, error];
+  return [filteredData, loading, error, handleFilterChange];
 };
 
 export default useSharePointListData;

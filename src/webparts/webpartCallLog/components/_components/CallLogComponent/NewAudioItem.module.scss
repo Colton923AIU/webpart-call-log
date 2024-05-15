@@ -2,11 +2,7 @@
   width: 100%;
   max-width: 48rem; // Equivalent to max-w-4xl in Tailwind
   margin: 0 auto;
-  padding: 2rem 0; // Equivalent to py-8 in Tailwind
-
-  @media (min-width: 768px) {
-    padding: 3rem 0; // Equivalent to md:py-12 in Tailwind
-  }
+  padding: 2rem 0 0 0; // Equivalent to py-8 in Tailwind
 }
 
 .flexContainer {
