@@ -19,13 +19,14 @@ const WebpartCallLog: React.FC<IWebpartCallLogProps> = (
     return (
       <section>
         <CallLogComponent description={description}>
-          {data.map((item: NICESPList) => {
+          {data.map((item: NICESPList, index: number) => {
             return (
               <NewAudioItem
                 item={item}
                 absoluteUrl={absoluteUrl}
                 client={spHttpClient}
                 spListLink={spListLink}
+                index={index}
               />
             );
           })}

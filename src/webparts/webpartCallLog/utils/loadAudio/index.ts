@@ -1,15 +1,13 @@
 import { SPHttpClient } from "@microsoft/sp-http";
-import * as React from "react";
-import urlGetByTitle from "../../../../utils/urlGetByTitle";
+import urlGetByTitle from "../urlGetByTitle";
 
 type SPListDefaultKeys = "Attachments" | "ID";
 type TSPListWithAudio = Record<SPListDefaultKeys, string | boolean>;
 
 const attachAudio = async (
   testUrl: string,
-  ref: React.RefObject<HTMLAudioElement>,
   client: SPHttpClient
-): Promise<boolean> => {
+): Promise<string | boolean> => {
   try {
     const fileResponse = await client.get(
       testUrl,
@@ -20,16 +18,8 @@ const attachAudio = async (
       const firstFile = file.value[0];
       const fileName = firstFile.FileName;
       const fileUrl = `${testUrl.slice(0, -1)}('${fileName}')/$value`;
-
-      if (ref.current) {
-        ref.current.src = fileUrl;
-        ref.current.preload = "auto";
-        ref.current.load();
-      }
-      console.log("Audio file successfully attached:", fileUrl);
-      return true;
+      return fileUrl;
     } else {
-      console.log("No audio file found at:", testUrl);
       return false;
     }
   } catch (error) {
@@ -40,11 +30,10 @@ const attachAudio = async (
 
 const loadAudio = async (
   listWithAudioAttachments: TSPListWithAudio,
-  ref: React.RefObject<HTMLAudioElement>,
   absoluteUrl: string,
   spListLink: string,
   client: SPHttpClient
-): Promise<boolean> => {
+): Promise<string | boolean> => {
   if (!listWithAudioAttachments.Attachments) {
     console.log("No attachments found for item:", listWithAudioAttachments.ID);
     return false;
@@ -57,7 +46,7 @@ const loadAudio = async (
   }
 
   const thisItem = `${url}/items(${listWithAudioAttachments.ID})/AttachmentFiles/`;
-  return attachAudio(thisItem, ref, client);
+  return attachAudio(thisItem, client);
 };
 
-export default loadAudio;
+export { loadAudio, attachAudio };

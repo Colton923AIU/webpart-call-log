@@ -8,13 +8,13 @@ import Pause from "../AudioItem/svgs/Pause";
 import Skip from "../AudioItem/svgs/Skip";
 import PlayIcon from "../PlayIcon";
 import Volume2Icon from "../Volume2Icon";
-import Duration from "./Duration";
 
 export type TAudioItem = {
   absoluteUrl: string;
   client: SPHttpClient;
   spListLink: string;
   item: NICESPList;
+  index: number;
 };
 
 const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
@@ -25,16 +25,17 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
     new Date().getTime()
   );
   const [sliderValue, setSliderValue] = useState<number>(0);
-  const { AudioRef, audioFileState, duration, error } = useAudioFile({
+  const { AudioRef, audioFileState, error } = useAudioFile({
     absoluteUrl: absoluteUrl,
     Attachments: item.Attachments,
     client: client,
     ID: item.ID,
     spListLink: spListLink,
-    EndCropTime: item.EndCropTime,
-    StartCropTime: item.StartCropTime,
   });
-  console.log("error: ", error);
+
+  if (error !== "") {
+    console.log(error);
+  }
 
   const restart = () => {
     setTimePlayed(0);
@@ -138,9 +139,13 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
             <Volume2Icon className={styles.volumeIcon} />
           </div>
         </div>
-        <audio id="audioRef" ref={AudioRef} style={{ display: "none" }} />
+        <audio
+          id={`audioRef_${audioItem.index}`}
+          ref={AudioRef}
+          style={{ display: "none" }}
+        />
       </div>
-      <Duration duration={duration} />
+      {/* <Duration duration={duration} /> */}
     </div>
   );
 };

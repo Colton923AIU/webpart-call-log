@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import loadAudio from "../../../components/_components/AudioItem/loadAudio";
+import { loadAudio } from "../../loadAudio";
 import { SPHttpClient } from "@microsoft/sp-http";
+import cropAudioBuffer from "../../cropAudioBuffer";
+import convertBufferToBlobUrl from "../../convertBufferToBlobUrl";
 
 export type TAudioFileProps = {
   Attachments: boolean | undefined;
@@ -8,8 +10,6 @@ export type TAudioFileProps = {
   absoluteUrl: string;
   spListLink: string;
   client: SPHttpClient;
-  StartCropTime?: number;
-  EndCropTime?: number;
 };
 
 const useAudioFile = ({
@@ -18,93 +18,92 @@ const useAudioFile = ({
   absoluteUrl,
   spListLink,
   client,
-  StartCropTime,
-  EndCropTime,
 }: TAudioFileProps) => {
   const AudioRef = useRef<HTMLAudioElement | null>(null);
   const [audioFileState, setAudioFileState] = useState(false);
-  const [duration, setDuration] = useState(0);
   const [error, setError] = useState<string>("");
-
-  // const cropAudioBuffer = (
-  //   audioBuffer: AudioBuffer,
-  //   start: number,
-  //   end: number
-  // ) => {
-  //   const sampleRate = audioBuffer.sampleRate;
-  //   const startSample = Math.floor(start * sampleRate);
-  //   const endSample = Math.floor(end * sampleRate);
-  //   const frameCount = endSample - startSample;
-
-  //   const croppedBuffer = new AudioBuffer({
-  //     length: frameCount,
-  //     numberOfChannels: audioBuffer.numberOfChannels,
-  //     sampleRate: sampleRate,
-  //   });
-
-  //   for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
-  //     const channelData = audioBuffer.getChannelData(channel);
-  //     const croppedChannelData = croppedBuffer.getChannelData(channel);
-  //     croppedChannelData.set(channelData.subarray(startSample, endSample));
-  //   }
-
-  //   return croppedBuffer;
-  // };
-
-  // const convertBufferToBlobUrl = async (audioBuffer: AudioBuffer) => {
-  //   const context = new OfflineAudioContext(
-  //     audioBuffer.numberOfChannels,
-  //     audioBuffer.length,
-  //     audioBuffer.sampleRate
-  //   );
-  //   const source = context.createBufferSource();
-  //   source.buffer = audioBuffer;
-  //   source.connect(context.destination);
-  //   source.start();
-  //   const renderedBuffer = await context.startRendering();
-  //   const wavBlob = new Blob([renderedBuffer as unknown as BlobPart], {
-  //     type: "audio/wav",
-  //   });
-  //   return URL.createObjectURL(wavBlob);
-  // };
-
   useEffect(() => {
     setError("");
 
-    const tryAudioFiling = async () => {
+    const updateAudioFile = async (src: string) => {
+      if (!AudioRef.current) {
+        setError("Error: AudioRef is not current");
+        return "error";
+      }
+
+      try {
+        const audioContext = new OfflineAudioContext({
+          numberOfChannels: 2, // Assuming stereo audio
+          length: 1, // Dummy length (to be updated)
+          sampleRate: 44100, // Sample rate of the audio (adjust as needed)
+        });
+
+        // Fetch the audio data as a Blob
+        const response = await fetch(src);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch audio file: ${response.statusText}`);
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+        // Now you have the audio buffer, you can crop it or do any other manipulation
+        const croppedBuffer = cropAudioBuffer(audioBuffer, 1, 10);
+        const newUrl = await convertBufferToBlobUrl(croppedBuffer);
+
+        return newUrl;
+      } catch (e) {
+        console.error("Error altering audio state", e);
+        setError(`Error altering audio state: ${e.message}`);
+        return "error";
+      }
+    };
+
+    const attachAudio = async () => {
       try {
         const audioState = await loadAudio(
           {
             Attachments: Attachments ? Attachments : false,
             ID: ID ? ID.toString() : "0",
           },
-          AudioRef,
           absoluteUrl,
           spListLink,
           client
         );
 
-        setAudioFileState(audioState);
-        if (AudioRef.current) {
-          console.log("start", StartCropTime);
-          console.log("end", EndCropTime);
-          console.log("duration", AudioRef.current.duration);
-          setDuration(AudioRef.current.duration);
+        if (audioFileState === false) {
+          setAudioFileState(false);
+        } else {
+          setAudioFileState(true);
         }
+        return audioState;
       } catch (e) {
         console.error("Error: useAudioFile hook error - ", e);
         setError("An error occurred while processing the audio file.");
+        return false;
       }
     };
 
-    if (AudioRef.current && !audioFileState) {
-      tryAudioFiling();
-    } else {
-      setError("Error: AudioRef is not current");
-    }
+    const initializeAudio = async () => {
+      if (AudioRef.current && !audioFileState) {
+        const audioState = await attachAudio();
+        if (audioState !== false) {
+          if (audioState !== true) {
+            const didUpdate = await updateAudioFile(audioState);
+            console.log("didUpdate: ", didUpdate);
+            if (didUpdate !== "error") {
+              AudioRef.current.src = didUpdate;
+              AudioRef.current.preload = "auto";
+              AudioRef.current.load();
+            }
+          }
+        }
+      }
+    };
+
+    initializeAudio();
   }, [AudioRef]);
 
-  return { AudioRef, audioFileState, duration, error };
+  return { AudioRef, audioFileState, error };
 };
 
 export default useAudioFile;
