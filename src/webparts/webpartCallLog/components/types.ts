@@ -22,6 +22,6 @@ export type NICESPList = {
   OData__ColorTag?: null;
   OData__UIVersionString?: string;
   StartCropTime?: number;
-  Tags?: string;
+  Tags?: string[];
   Title?: string;
 };

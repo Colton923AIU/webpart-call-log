@@ -8,6 +8,9 @@ import Pause from "../AudioItem/svgs/Pause";
 import Skip from "../AudioItem/svgs/Skip";
 import PlayIcon from "../PlayIcon";
 import Volume2Icon from "../Volume2Icon";
+import Duration from "./Duration";
+import Tags from "./Tags";
+import prettyTimePlayed from "./prettyTimePlayed";
 
 export type TAudioItem = {
   absoluteUrl: string;
@@ -25,12 +28,18 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
     new Date().getTime()
   );
   const [sliderValue, setSliderValue] = useState<number>(0);
+  const [audioDuration, setAudioDuration] = useState<number>(0);
+
+  const setDuration = (dur: number) => {
+    setAudioDuration(dur);
+    return;
+  };
   const { AudioRef, audioFileState, error } = useAudioFile({
     absoluteUrl: absoluteUrl,
-    Attachments: item.Attachments,
+    item: item,
     client: client,
-    ID: item.ID,
     spListLink: spListLink,
+    setDuration: setDuration,
   });
 
   if (error !== "") {
@@ -99,7 +108,12 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
   };
 
   return (
-    <div className={styles.audioItemContainer}>
+    <div
+      className={styles.audioItemContainer}
+      id={`audio_item_container_${audioItem.index}`}
+    >
+      {item.Tags ? <Tags tags={item.Tags} /> : null}
+
       <div className={styles.audioItem}>
         <div className={styles.audioItemIndex}>{item.ID}</div>
         <div className={styles.audioItemControls}>
@@ -138,6 +152,11 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
             />
             <Volume2Icon className={styles.volumeIcon} />
           </div>
+          <div className={styles.time}>
+            <span>{prettyTimePlayed(timePlayed)}</span>
+            <span>{`:`}</span>
+            <Duration audioDuration={audioDuration} />
+          </div>
         </div>
         <audio
           id={`audioRef_${audioItem.index}`}
@@ -145,7 +164,6 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
           style={{ display: "none" }}
         />
       </div>
-      {/* <Duration duration={duration} /> */}
     </div>
   );
 };

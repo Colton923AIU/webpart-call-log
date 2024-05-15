@@ -1,14 +1,8 @@
 import * as React from "react";
-import styles from "./NAudio.module.scss";
+import prettyTimePlayed from "./prettyTimePlayed";
 
-const Duration = ({ duration }: { duration: number }) => {
-  if (duration === Infinity) {
-    return <span className={styles.durationRoot}>{`...`}</span>;
-  }
-  if (isNaN(duration)) {
-    return <span className={styles.durationRoot}>{"..."}</span>;
-  }
-  return <span className={styles.durationRoot}>{duration}</span>;
+const Duration = ({ audioDuration }: { audioDuration: number }) => {
+  return <span>{prettyTimePlayed(audioDuration * 1000)}</span>;
 };
 
 export default Duration;

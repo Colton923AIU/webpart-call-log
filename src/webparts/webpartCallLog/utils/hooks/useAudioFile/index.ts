@@ -3,21 +3,22 @@ import { loadAudio } from "../../loadAudio";
 import { SPHttpClient } from "@microsoft/sp-http";
 import cropAudioBuffer from "../../cropAudioBuffer";
 import convertBufferToBlobUrl from "../../convertBufferToBlobUrl";
+import { NICESPList } from "../../../components/types";
 
 export type TAudioFileProps = {
-  Attachments: boolean | undefined;
-  ID: number | undefined;
+  item: NICESPList;
   absoluteUrl: string;
   spListLink: string;
   client: SPHttpClient;
+  setDuration: (dur: number) => void;
 };
 
 const useAudioFile = ({
-  Attachments,
-  ID,
   absoluteUrl,
   spListLink,
   client,
+  setDuration,
+  item,
 }: TAudioFileProps) => {
   const AudioRef = useRef<HTMLAudioElement | null>(null);
   const [audioFileState, setAudioFileState] = useState(false);
@@ -33,24 +34,35 @@ const useAudioFile = ({
 
       try {
         const audioContext = new OfflineAudioContext({
-          numberOfChannels: 2, // Assuming stereo audio
-          length: 1, // Dummy length (to be updated)
-          sampleRate: 44100, // Sample rate of the audio (adjust as needed)
+          numberOfChannels: 2,
+          length: 1,
+          sampleRate: 44100,
         });
 
-        // Fetch the audio data as a Blob
         const response = await fetch(src);
         if (!response.ok) {
           throw new Error(`Failed to fetch audio file: ${response.statusText}`);
         }
+
         const arrayBuffer = await response.arrayBuffer();
         const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-
-        // Now you have the audio buffer, you can crop it or do any other manipulation
-        const croppedBuffer = cropAudioBuffer(audioBuffer, 1, 10);
-        const newUrl = await convertBufferToBlobUrl(croppedBuffer);
-
-        return newUrl;
+        if (
+          item.CropServiceRequired &&
+          item.StartCropTime &&
+          item.EndCropTime &&
+          !item.CropServiceCompleted
+        ) {
+          const croppedBuffer = cropAudioBuffer(
+            audioBuffer,
+            item.StartCropTime,
+            item.EndCropTime
+          );
+          const newUrl = await convertBufferToBlobUrl(croppedBuffer);
+          return newUrl;
+        } else {
+          const newUrl = await convertBufferToBlobUrl(audioBuffer);
+          return newUrl;
+        }
       } catch (e) {
         console.error("Error altering audio state", e);
         setError(`Error altering audio state: ${e.message}`);
@@ -62,8 +74,8 @@ const useAudioFile = ({
       try {
         const audioState = await loadAudio(
           {
-            Attachments: Attachments ? Attachments : false,
-            ID: ID ? ID.toString() : "0",
+            Attachments: item.Attachments ? item.Attachments : false,
+            ID: item.ID ? item.ID.toString() : "0",
           },
           absoluteUrl,
           spListLink,
@@ -89,11 +101,23 @@ const useAudioFile = ({
         if (audioState !== false) {
           if (audioState !== true) {
             const didUpdate = await updateAudioFile(audioState);
-            console.log("didUpdate: ", didUpdate);
             if (didUpdate !== "error") {
-              AudioRef.current.src = didUpdate;
+              const sourceElement = document.createElement("source");
+              sourceElement.src = didUpdate;
+              sourceElement.type = "audio/wav";
+
+              AudioRef.current.innerHTML = "";
+              AudioRef.current.appendChild(sourceElement);
               AudioRef.current.preload = "auto";
+
+              AudioRef.current.onloadedmetadata = () => {
+                setDuration(
+                  AudioRef.current?.duration ? AudioRef.current?.duration : 0
+                );
+              };
+
               AudioRef.current.load();
+              setAudioFileState(true);
             }
           }
         }
