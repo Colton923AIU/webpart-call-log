@@ -34,9 +34,14 @@ const useSharePointListData: ({
     if (selectedTags.length === 0) {
       setFilteredData(listData);
     } else {
-      const filtered = listData.filter((item: NICESPList) =>
-        selectedTags.every((tag) => item.Tags?.indexOf(tag) !== -1)
-      );
+      const filtered = listData.filter((item: NICESPList) => {
+        if (item.Tags) {
+          if (selectedTags.every((tag) => item.Tags?.indexOf(tag) !== -1)) {
+            return true;
+          }
+        }
+      });
+
       setFilteredData(filtered);
     }
   };
@@ -55,7 +60,7 @@ const useSharePointListData: ({
         console.log("pre: ", pre);
         const vals: any[] = [];
         pre.map((item: NICESPList) => {
-          if (item.Approved === true) {
+          if (item.Approved === true && item.Attachments === true) {
             vals.push(item);
           }
         });

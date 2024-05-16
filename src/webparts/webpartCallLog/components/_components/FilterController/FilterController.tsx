@@ -3,6 +3,7 @@ import { TSPListData } from "../../../utils/hooks/useSharePointListData/useShare
 import { NICESPList } from "../../types";
 import FilterIcon from "../FilterIcon";
 import styles from "./FilterController.module.scss";
+import CancelFilterIcon from "../CancelFilterIcon";
 
 interface FilterControllerProps {
   data: TSPListData;
@@ -60,6 +61,17 @@ const FilterController: React.FC<FilterControllerProps> = ({
 
   return (
     <div className={styles.wrapper}>
+      {showTags ? (
+        <CancelFilterIcon
+          onClick={() => {
+            toggleShowTags();
+            setSelectedTags([]);
+            onFilterChange([]);
+          }}
+        />
+      ) : (
+        <FilterIcon onClick={toggleShowTags} />
+      )}
       <div className={styles.tags}>
         {tagsArray.map((tag) => (
           <button
@@ -76,7 +88,6 @@ const FilterController: React.FC<FilterControllerProps> = ({
           </button>
         ))}
       </div>
-      <FilterIcon width={24} height={24} onClick={toggleShowTags} />
     </div>
   );
 };

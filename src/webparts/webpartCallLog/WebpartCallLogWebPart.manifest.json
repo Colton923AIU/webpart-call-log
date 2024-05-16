@@ -21,7 +21,8 @@
       "description": { "default": "SP List Audio Player" },
       "officeFabricIconFontName": "Page",
       "properties": {
-        "description": "description"
+        "description": "Call Log Library",
+        "spListLink": "https://livecareered.sharepoint.com/sites/AIU/admissions/training/Lists/NICE%20Calls%20Library/AllItems.aspx?env=WebViewList"
       }
     }
   ]

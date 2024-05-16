@@ -11,6 +11,7 @@ import Volume2Icon from "../Volume2Icon";
 import Duration from "./Duration";
 import Tags from "./Tags";
 import prettyTimePlayed from "./prettyTimePlayed";
+import Volume from "./Volume";
 
 export type TAudioItem = {
   absoluteUrl: string;
@@ -29,6 +30,8 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
   );
   const [sliderValue, setSliderValue] = useState<number>(0);
   const [audioDuration, setAudioDuration] = useState<number>(0);
+  const [showVolumeSlider, setShowVolumeSlider] =
+    React.useState<boolean>(false);
 
   const setDuration = (dur: number) => {
     setAudioDuration(dur);
@@ -107,13 +110,27 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
     }
   };
 
+  const toggleVolumeShowSlider = () => {
+    setShowVolumeSlider(!showVolumeSlider);
+  };
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (AudioRef.current) {
+      AudioRef.current.volume = parseInt(e.target.value) / 100;
+    }
+    setTimeout(() => {
+      if (showVolumeSlider === true) setShowVolumeSlider(false);
+    }, 2000);
+  };
+
   return (
     <div
       className={styles.audioItemContainer}
       id={`audio_item_container_${audioItem.index}`}
     >
-      {item.Tags ? <Tags tags={item.Tags} /> : null}
-
+      <div className={styles.tagsWrapper}>
+        {item.Tags ? <Tags tags={item.Tags} /> : null}
+      </div>
       <div className={styles.audioItem}>
         <div className={styles.audioItemIndex}>{item.ID}</div>
         <div className={styles.audioItemControls}>
@@ -150,11 +167,22 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
               className={styles.slider}
               onChange={handleSliderChange}
             />
-            <Volume2Icon className={styles.volumeIcon} />
+          </div>
+          <div className={styles.volumeFlex}>
+            <button
+              disabled={!audioFileState}
+              className={styles.controlButton}
+              onClick={toggleVolumeShowSlider}
+            >
+              <Volume2Icon className={styles.volumeIcon} />
+            </button>
+            {showVolumeSlider ? (
+              <Volume handleChange={handleVolumeChange} />
+            ) : null}
           </div>
           <div className={styles.time}>
             <span>{prettyTimePlayed(timePlayed)}</span>
-            <span>{`:`}</span>
+            <span>{` / `}</span>
             <Duration audioDuration={audioDuration} />
           </div>
         </div>
