@@ -4,6 +4,7 @@ import { Version } from "@microsoft/sp-core-library";
 import {
   type IPropertyPaneConfiguration,
   PropertyPaneTextField,
+  PropertyPaneChoiceGroup,
 } from "@microsoft/sp-property-pane";
 import { BaseClientSideWebPart } from "@microsoft/sp-webpart-base";
 import { IReadonlyTheme } from "@microsoft/sp-component-base";
@@ -12,15 +13,15 @@ import * as strings from "WebpartCallLogWebPartStrings";
 import WebpartCallLog from "./components/WebpartCallLog";
 import { IWebpartCallLogProps } from "./components/IWebpartCallLogProps";
 
-export interface IWebpartCallLogWebPartProps {
-  description: string;
-  spListLink: string;
-  absoluteUrl: string;
-}
-
-export default class WebpartCallLogWebPart extends BaseClientSideWebPart<IWebpartCallLogWebPartProps> {
+export default class WebpartCallLogWebPart extends BaseClientSideWebPart<IWebpartCallLogProps> {
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = "";
+
+  /*
+
+  TODO: Update IWebpartCallLogProps with isAdmin profile from @136
+
+  */
 
   public render(): void {
     const element: React.ReactElement<IWebpartCallLogProps> =
@@ -30,10 +31,11 @@ export default class WebpartCallLogWebPart extends BaseClientSideWebPart<IWebpar
         environmentMessage: this._environmentMessage,
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
         userDisplayName: this.context.pageContext.user.displayName,
-        // spListLink: this.properties.spListLink,
-        spListLink: `https://livecareered.sharepoint.com/sites/AIU/admissions/training/Lists/NICE%20Calls%20Library/AllItems.aspx?env=WebViewList`,
+        spListLink: this.properties.spListLink,
         absoluteUrl: this.context.pageContext.web.absoluteUrl,
         spHttpClient: this.context.spHttpClient,
+        theme: this.properties.theme,
+        // admin: this.context.pageContext.web.adminMode,
       });
 
     ReactDom.render(element, this.domElement);
@@ -129,6 +131,28 @@ export default class WebpartCallLogWebPart extends BaseClientSideWebPart<IWebpar
                 }),
                 PropertyPaneTextField("spListLink", {
                   label: strings.SPListLinkLabel,
+                }),
+                // PropertyPaneCheckbox()
+                PropertyPaneChoiceGroup("theme", {
+                  label: strings.Theme,
+                  options: [
+                    {
+                      key: "aiu-system",
+                      text: "aiu-system",
+                    },
+                    {
+                      key: "aiu",
+                      text: "aiu",
+                    },
+                    {
+                      key: "cal-southern",
+                      text: "cal-southern",
+                    },
+                    {
+                      key: "default",
+                      text: "default",
+                    },
+                  ],
                 }),
               ],
             },

@@ -182,7 +182,7 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
           </div>
           <div className={styles.time}>
             <span>{prettyTimePlayed(timePlayed)}</span>
-            <span>{` / `}</span>
+            <span style={{ padding: "0 .1rem" }}>{`/`}</span>
             <Duration audioDuration={audioDuration} />
           </div>
         </div>

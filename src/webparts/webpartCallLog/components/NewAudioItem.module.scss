@@ -7,7 +7,11 @@
 .flexContainer {
   display: flex;
   flex-direction: column;
-  width: fit-content;
+
+  :nth-child(2n) {
+    background-color: rgba(rgba(255, 255, 255, 0.7), 0.1);
+    box-shadow: 1px 0 0 1px rgba(255, 255, 255, 0.7);
+  }
 }
 
 .flexHeader {
@@ -15,29 +19,24 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  width: fit-content;
 }
 
 .heading {
   font-size: 1.5rem;
   font-weight: bold;
   padding: 0 1rem;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.subtext {
-  color: #718096;
-
-  @media (prefers-color-scheme: dark) {
-    color: #cbd5e0;
-  }
+.aiu-system {
+  color: lightblue;
 }
-
-.dropdownButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.aiu {
+  color: blue;
 }
-
-.dropdownMenu {
-  width: 12.5rem;
+.cal-southern {
+  color: red;
+}
+.default {
+  color: black;
 }

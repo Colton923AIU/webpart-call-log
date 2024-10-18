@@ -13,6 +13,7 @@ declare interface IWebpartCallLogWebPartStrings {
   UnknownEnvironment: string;
   PropertyPaneSPListLink: string;
   SPListLinkLabel: string;
+  Theme: string;
 }
 
 declare module "WebpartCallLogWebPartStrings" {

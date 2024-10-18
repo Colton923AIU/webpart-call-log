@@ -22,7 +22,8 @@
       "officeFabricIconFontName": "Page",
       "properties": {
         "description": "Call Log Library",
-        "spListLink": "https://livecareered.sharepoint.com/sites/AIU/admissions/training/Lists/NICE%20Calls%20Library/AllItems.aspx?env=WebViewList"
+        "spListLink": "https://livecareered.sharepoint.com/sites/AIU/admissions/training/Lists/NICE%20Calls%20Library/AllItems.aspx?env=WebViewList",
+        "theme": "aiu-system"
       }
     }
   ]

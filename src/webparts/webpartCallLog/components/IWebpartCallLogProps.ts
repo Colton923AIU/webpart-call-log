@@ -9,4 +9,5 @@ export interface IWebpartCallLogProps {
   spListLink: string;
   absoluteUrl: string;
   spHttpClient: SPHttpClient;
+  theme: string;
 }

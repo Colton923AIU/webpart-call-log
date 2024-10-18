@@ -6,20 +6,40 @@ import styles from "./NewAudioItem.module.scss";
 import NewAudioItem from "./_components/NewAudioItem";
 import FilterController from "./_components/FilterController/FilterController";
 
+type PossibleThemes = "aiu-system" | "aiu" | "cal-southern" | "default";
+
 const WebpartCallLog: React.FC<IWebpartCallLogProps> = (
   props: IWebpartCallLogProps
 ) => {
-  const { absoluteUrl, spHttpClient, spListLink, description } = { ...props };
+  const { absoluteUrl, spHttpClient, spListLink, description, theme } = {
+    ...props,
+  };
   const [filteredData, loading, error, handleFilterChange] =
     useSharePointListData({
       client: spHttpClient,
       absoluteUrl: absoluteUrl,
       spListLink: spListLink,
     });
+  const [themeClassList, setThemeClassList] =
+    React.useState<PossibleThemes>("default");
+  React.useEffect(() => {
+    if (theme === "aiu-system") {
+      setThemeClassList("aiu-system");
+    }
+    if (theme === "aiu") {
+      setThemeClassList("aiu");
+    }
+    if (theme === "cal-southern") {
+      setThemeClassList("cal-southern");
+    }
+    if (theme === "default") {
+      setThemeClassList("default");
+    }
+  }, [theme]);
 
   if (!loading && !error) {
     return (
-      <section className={styles.sectionContainer}>
+      <section className={styles.sectionContainer && styles[themeClassList]}>
         <div className={styles.flexContainer}>
           <div className={styles.flexHeader}>
             <h1 className={styles.heading}>{description}</h1>
