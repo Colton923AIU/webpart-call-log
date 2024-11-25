@@ -1,9 +1,9 @@
 .audioItemContainer {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
 
-  justify-content: space-evenly;
-  align-items: flex-start;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .audioItem {
@@ -134,4 +134,9 @@
 
 .tagsWrapper {
   padding: 0 0 0 2rem;
+}
+
+.rightContainer {
+  display: flex;
+  flex-direction: column;
 }

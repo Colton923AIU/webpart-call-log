@@ -24,4 +24,5 @@ export type NICESPList = {
   StartCropTime?: number;
   Tags?: string[];
   Title?: string;
+  CallType?: string;
 };

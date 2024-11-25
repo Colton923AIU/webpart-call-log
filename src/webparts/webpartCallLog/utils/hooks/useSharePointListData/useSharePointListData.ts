@@ -57,7 +57,6 @@ const useSharePointListData: ({
         });
       if (data) {
         const pre = data.value;
-        console.log("pre: ", pre);
         const vals: any[] = [];
         pre.map((item: NICESPList) => {
           if (item.Approved === true && item.Attachments === true) {

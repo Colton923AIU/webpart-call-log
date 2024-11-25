@@ -7,11 +7,11 @@ import useAudioFile from "../../../utils/hooks/useAudioFile";
 import Pause from "../AudioItem/svgs/Pause";
 import Skip from "../AudioItem/svgs/Skip";
 import PlayIcon from "../PlayIcon";
-import Volume2Icon from "../Volume2Icon";
 import Duration from "./Duration";
 import Tags from "./Tags";
-import prettyTimePlayed from "./prettyTimePlayed";
-import Volume from "./Volume";
+import CurrentTime from "./CurrentTime";
+// import Volume from "./Volume";
+// import Volume2Icon from "../Volume2Icon";
 
 export type TAudioItem = {
   absoluteUrl: string;
@@ -30,8 +30,8 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
   );
   const [sliderValue, setSliderValue] = useState<number>(0);
   const [audioDuration, setAudioDuration] = useState<number>(0);
-  const [showVolumeSlider, setShowVolumeSlider] =
-    React.useState<boolean>(false);
+  // const [showVolumeSlider, setShowVolumeSlider] =
+  //   React.useState<boolean>(false);
 
   const setDuration = (dur: number) => {
     setAudioDuration(dur);
@@ -58,6 +58,14 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
     }
   };
 
+  const updateSlider = () => {
+    if (AudioRef.current) {
+      const currentTime = AudioRef.current.currentTime;
+      const duration = AudioRef.current.duration;
+      const value = (currentTime / duration) * 100;
+      setSliderValue(value);
+    }
+  };
   const play = () => {
     if (AudioRef.current) {
       try {
@@ -93,15 +101,6 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
     }
   };
 
-  const updateSlider = () => {
-    if (AudioRef.current) {
-      const currentTime = AudioRef.current.currentTime;
-      const duration = AudioRef.current.duration;
-      const value = (currentTime / duration) * 100;
-      setSliderValue(value);
-    }
-  };
-
   const handleSliderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSliderValue(parseInt(event.target.value));
     if (AudioRef.current) {
@@ -110,65 +109,88 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
     }
   };
 
-  const toggleVolumeShowSlider = () => {
-    setShowVolumeSlider(!showVolumeSlider);
-  };
+  // const toggleVolumeShowSlider = () => {
+  //   setShowVolumeSlider(!showVolumeSlider);
+  // };
 
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (AudioRef.current) {
-      AudioRef.current.volume = parseInt(e.target.value) / 100;
-    }
-    setTimeout(() => {
-      if (showVolumeSlider === true) setShowVolumeSlider(false);
-    }, 2000);
-  };
+  // const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (AudioRef.current) {
+  //     AudioRef.current.volume = parseInt(e.target.value) / 100;
+  //   }
+  //   setTimeout(() => {
+  //     if (showVolumeSlider === true) setShowVolumeSlider(false);
+  //   }, 2000);
+  // };
+
+  const [currentTime, setCurrentTime] = React.useState(0);
+
+  React.useEffect(() => {
+    const audioElement = AudioRef?.current;
+    if (!audioElement) return;
+
+    const updateTime = () => {
+      const currTime = audioElement.currentTime;
+      setCurrentTime(currTime);
+      if (currTime === audioDuration) {
+        setTimeout(() => {
+          pause();
+        }, 1000);
+      }
+    };
+    audioElement.addEventListener("timeupdate", updateTime);
+
+    return () => {
+      audioElement.removeEventListener("timeupdate", updateTime);
+    };
+  }, [AudioRef]);
 
   return (
     <div
       className={styles.audioItemContainer}
       id={`audio_item_container_${audioItem.index}`}
     >
-      <div className={styles.tagsWrapper}>
-        {item.Tags ? <Tags tags={item.Tags} /> : null}
-      </div>
-      <div className={styles.audioItem}>
-        <div className={styles.audioItemIndex}>{item.ID}</div>
-        <div className={styles.audioItemControls}>
-          <button
-            onClick={restart}
-            disabled={!audioFileState}
-            className={styles.controlButton}
-          >
-            <Skip />
-          </button>
-          {playing ? (
+      <div className={styles.audioItemIndex}>{audioItem.index}</div>
+      <div className={styles.rightContainer}>
+        <div className={styles.tagsWrapper}>
+          {item.Tags ? <Tags tags={item.Tags} /> : null}
+        </div>
+        <div className={styles.audioItem}>
+          <div className={styles.audioItemControls}>
             <button
-              onClick={pause}
+              onClick={restart}
               disabled={!audioFileState}
               className={styles.controlButton}
             >
-              <Pause />
+              <Skip />
             </button>
-          ) : (
-            <button
-              onClick={play}
-              disabled={!audioFileState}
-              className={styles.controlButton}
-            >
-              <PlayIcon />
-            </button>
-          )}
-          <div className={styles.sliderContainer}>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={sliderValue}
-              className={styles.slider}
-              onChange={handleSliderChange}
-            />
-          </div>
-          <div className={styles.volumeFlex}>
+            {playing ? (
+              <button
+                onClick={pause}
+                disabled={!audioFileState}
+                className={styles.controlButton}
+              >
+                <Pause />
+              </button>
+            ) : (
+              <button
+                onClick={play}
+                disabled={!audioFileState}
+                className={styles.controlButton}
+              >
+                <PlayIcon />
+              </button>
+            )}
+            <div className={styles.sliderContainer}>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={sliderValue}
+                className={styles.slider}
+                onChange={handleSliderChange}
+              />
+            </div>
+            {/* <div className={styles.volumeFlex}>
             <button
               disabled={!audioFileState}
               className={styles.controlButton}
@@ -179,18 +201,19 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
             {showVolumeSlider ? (
               <Volume handleChange={handleVolumeChange} />
             ) : null}
+          </div> */}
+            <div className={styles.time}>
+              <CurrentTime audioCurrentTime={currentTime} />
+              <span style={{ padding: "0 .1rem" }}>{`/`}</span>
+              <Duration audioDuration={audioDuration} />
+            </div>
           </div>
-          <div className={styles.time}>
-            <span>{prettyTimePlayed(timePlayed)}</span>
-            <span style={{ padding: "0 .1rem" }}>{`/`}</span>
-            <Duration audioDuration={audioDuration} />
-          </div>
+          <audio
+            id={`audioRef_${audioItem.index}`}
+            ref={AudioRef}
+            style={{ display: "none" }}
+          />
         </div>
-        <audio
-          id={`audioRef_${audioItem.index}`}
-          ref={AudioRef}
-          style={{ display: "none" }}
-        />
       </div>
     </div>
   );

@@ -35,6 +35,6 @@
     ]
   },
   "paths": {
-    "zippedPackage": "solution/webpart-call-log.sppkg"
+    "zippedPackage": "solution/webpart-call-log-v0.sppkg"
   }
 }
