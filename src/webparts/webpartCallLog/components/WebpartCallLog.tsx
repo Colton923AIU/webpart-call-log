@@ -4,14 +4,17 @@ import useSharePointListData from "../utils/hooks/useSharePointListData";
 import { NICESPList } from "./types";
 import styles from "./NewAudioItem.module.scss";
 import NewAudioItem from "./_components/NewAudioItem";
-// import FilterController from "./_components/FilterController/FilterController";
+import { TSPListData } from "../utils/hooks/useSharePointListData/useSharePointListData";
 
-type PossibleThemes = "aiu-system" | "aiu" | "cal-southern" | "default";
+type TData = {
+  name: string;
+  calls: NICESPList[];
+};
 
 const WebpartCallLog: React.FC<IWebpartCallLogProps> = (
   props: IWebpartCallLogProps
 ) => {
-  const { absoluteUrl, spHttpClient, spListLink, description, theme } = {
+  const { absoluteUrl, spHttpClient, spListLink } = {
     ...props,
   };
   const [filteredData, loading, error] = useSharePointListData({
@@ -19,23 +22,10 @@ const WebpartCallLog: React.FC<IWebpartCallLogProps> = (
     absoluteUrl: absoluteUrl,
     spListLink: spListLink,
   });
-  const [themeClassList, setThemeClassList] =
-    React.useState<PossibleThemes>("default");
-  React.useEffect(() => {
-    if (theme === "aiu-system") {
-      setThemeClassList("aiu-system");
-    }
-    if (theme === "aiu") {
-      setThemeClassList("aiu");
-    }
-    if (theme === "cal-southern") {
-      setThemeClassList("cal-southern");
-    }
-    if (theme === "default") {
-      setThemeClassList("default");
-    }
-  }, [theme]);
-  const SortedData = (filteredData: NICESPList[]) => {
+
+  const SortedData: (data: NICESPList[]) => NICESPList[] = (
+    filteredData: NICESPList[]
+  ) => {
     return filteredData
       .sort((a: NICESPList, b: NICESPList) => {
         if (a.Tags) {
@@ -47,7 +37,6 @@ const WebpartCallLog: React.FC<IWebpartCallLogProps> = (
         } else {
           return -1;
         }
-        return 0;
       })
       .sort((a: NICESPList, b: NICESPList) => {
         if (a.CallType && b.CallType) {
@@ -57,52 +46,78 @@ const WebpartCallLog: React.FC<IWebpartCallLogProps> = (
         }
       });
   };
-  const CallTypes = (filteredData: NICESPList[]) => {
-    let callTypes: string[] = [];
-    filteredData.map((item) => {
-      if (item.CallType) {
-        if (
-          callTypes.every((val) => {
-            val !== item;
-          })
-        ) {
-          callTypes.push(item.CallType);
-        }
+
+  const CallTypes: (data: NICESPList[]) => Set<string> = (
+    filteredData: NICESPList[]
+  ) => {
+    const callTypes: Set<string> = new Set();
+
+    filteredData.forEach((item) => {
+      if (item.CallType !== undefined) {
+        callTypes.add(item.CallType);
       }
     });
+
     return callTypes;
   };
 
+  const GenerateCalls: (filteredData: TSPListData) => TData[] = (
+    filteredData: TSPListData
+  ) => {
+    const Calls: TData[] = [];
+
+    CallTypes(filteredData).forEach((callType) => {
+      const sortMe: NICESPList[] = [];
+      filteredData.map((item, idx) => {
+        if (item.CallType === callType) {
+          sortMe.push(item);
+        }
+      });
+
+      const calls = SortedData(sortMe);
+
+      Calls.push({
+        name: callType,
+        calls: calls,
+      });
+    });
+    return Calls;
+  };
+
+  const calls = GenerateCalls(filteredData);
   if (!loading && !error) {
     return (
-      <section className={styles.sectionContainer && styles[themeClassList]}>
+      <section className={styles.sectionContainer}>
         <div className={styles.flexContainer}>
-          <div className={styles.flexHeader}>
-            <h1 className={styles.heading}>{description}</h1>
-            {/* <FilterController
-              data={filteredData}
-              onFilterChange={handleFilterChange}
-            /> */}
+          <div>
+            <h1
+              style={{
+                color: "#0063a7",
+              }}
+            >
+              Call Library
+            </h1>
           </div>
           <div className={styles.flexContainer}>
-            {CallTypes(filteredData).map((type) => {
+            {calls.map((callType) => {
               return (
-                <div className={styles.flexContainer}>
-                  <span className={styles.callType}>{type}</span>
-                  {SortedData(filteredData).map(
-                    (item: NICESPList, index: number) => {
-                      return (
-                        <NewAudioItem
-                          key={`new_audio_item_${index}`}
-                          item={item}
-                          absoluteUrl={absoluteUrl}
-                          client={spHttpClient}
-                          spListLink={spListLink}
-                          index={index + 1}
-                        />
-                      );
-                    }
-                  )}
+                <div
+                  key={"calltype_" + callType}
+                  className={styles.flexContainer}
+                >
+                  <span className={styles.callType}>{callType.name}</span>
+                  {callType.calls.map((call, index) => {
+                    return (
+                      <NewAudioItem
+                        key={`new_audio_item_${index}`}
+                        item={call}
+                        absoluteUrl={absoluteUrl}
+                        client={spHttpClient}
+                        spListLink={spListLink}
+                        index={index + 1}
+                      />
+                    );
+                  })}
                 </div>
               );
             })}

@@ -3,7 +3,7 @@
   "solution": {
     "name": "webpart-call-log-client-side-solution",
     "id": "5d66eb56-64f1-4a40-a24b-33d866ebf8af",
-    "version": "1.0.0.0",
+    "version": "1.0.0.2",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
@@ -35,6 +35,6 @@
     ]
   },
   "paths": {
-    "zippedPackage": "solution/webpart-call-log-v1.sppkg"
+    "zippedPackage": "solution/webpart-call-log1002.sppkg"
   }
 }

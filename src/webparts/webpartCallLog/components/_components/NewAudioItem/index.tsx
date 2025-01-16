@@ -10,8 +10,6 @@ import PlayIcon from "../PlayIcon";
 import Duration from "./Duration";
 import Tags from "./Tags";
 import CurrentTime from "./CurrentTime";
-// import Volume from "./Volume";
-// import Volume2Icon from "../Volume2Icon";
 
 export type TAudioItem = {
   absoluteUrl: string;
@@ -25,15 +23,14 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
   const { absoluteUrl, spListLink, client, item } = { ...audioItem };
   const [playing, setPlaying] = useState(false);
   const [timePlayed, setTimePlayed] = useState<number>(0);
+  const [currentTime, setCurrentTime] = React.useState(0);
   const [previousTimer, setPreviousTimer] = useState<number>(
     new Date().getTime()
   );
   const [sliderValue, setSliderValue] = useState<number>(0);
   const [audioDuration, setAudioDuration] = useState<number>(0);
-  // const [showVolumeSlider, setShowVolumeSlider] =
-  //   React.useState<boolean>(false);
 
-  const setDuration = (dur: number) => {
+  const setDuration: (dur: number) => void = (dur: number) => {
     setAudioDuration(dur);
     return;
   };
@@ -49,7 +46,7 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
     console.log(error);
   }
 
-  const restart = () => {
+  const restart: () => void = () => {
     setTimePlayed(0);
     setPlaying(false);
     if (AudioRef.current) {
@@ -58,7 +55,7 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
     }
   };
 
-  const updateSlider = () => {
+  const updateSlider: () => void = () => {
     if (AudioRef.current) {
       const currentTime = AudioRef.current.currentTime;
       const duration = AudioRef.current.duration;
@@ -66,7 +63,7 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
       setSliderValue(value);
     }
   };
-  const play = () => {
+  const play: () => void = () => {
     if (AudioRef.current) {
       try {
         AudioRef.current
@@ -86,13 +83,11 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
     }
   };
 
-  const pause = () => {
+  const pause: () => void = () => {
     if (AudioRef.current) {
       try {
         AudioRef.current.pause();
         AudioRef.current.removeEventListener("timeupdate", updateSlider);
-      } catch (e) {
-        console.log(e);
       } finally {
         const total = new Date().getTime() - previousTimer + timePlayed;
         setTimePlayed(total);
@@ -101,7 +96,9 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
     }
   };
 
-  const handleSliderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSliderChange: (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => void = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSliderValue(parseInt(event.target.value));
     if (AudioRef.current) {
       AudioRef.current.currentTime =
@@ -109,26 +106,11 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
     }
   };
 
-  // const toggleVolumeShowSlider = () => {
-  //   setShowVolumeSlider(!showVolumeSlider);
-  // };
-
-  // const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (AudioRef.current) {
-  //     AudioRef.current.volume = parseInt(e.target.value) / 100;
-  //   }
-  //   setTimeout(() => {
-  //     if (showVolumeSlider === true) setShowVolumeSlider(false);
-  //   }, 2000);
-  // };
-
-  const [currentTime, setCurrentTime] = React.useState(0);
-
   React.useEffect(() => {
     const audioElement = AudioRef?.current;
     if (!audioElement) return;
 
-    const updateTime = () => {
+    const updateTime: () => void = () => {
       const currTime = audioElement.currentTime;
       setCurrentTime(currTime);
       if (currTime === audioDuration) {
@@ -190,22 +172,19 @@ const NewAudioItem: React.FC<TAudioItem> = (audioItem) => {
                 onChange={handleSliderChange}
               />
             </div>
-            {/* <div className={styles.volumeFlex}>
-            <button
-              disabled={!audioFileState}
-              className={styles.controlButton}
-              onClick={toggleVolumeShowSlider}
-            >
-              <Volume2Icon className={styles.volumeIcon} />
-            </button>
-            {showVolumeSlider ? (
-              <Volume handleChange={handleVolumeChange} />
-            ) : null}
-          </div> */}
             <div className={styles.time}>
               <CurrentTime audioCurrentTime={currentTime} />
               <span style={{ padding: "0 .1rem" }}>{`/`}</span>
               <Duration audioDuration={audioDuration} />
+            </div>
+            <div
+              style={{
+                width: "200px",
+                padding: "5px",
+                marginLeft: "1rem",
+              }}
+            >
+              {item.Description}
             </div>
           </div>
           <audio
